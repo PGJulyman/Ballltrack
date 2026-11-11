@@ -1,0 +1,14 @@
+# Normalize text files
+* text=auto
+
+# Web files
+*.html text eol=lf
+*.css  text eol=lf
+*.js   text eol=lf
+
+# Windows command scripts
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+
+# Linux shell scripts
+*.sh   text eol=lf
