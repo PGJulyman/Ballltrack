@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d0f0f">
+  <meta name="robots" content="noindex">
+  <title>404 · Page not found — Ballltrack</title>
+  <link rel="stylesheet" href="/style.css?v=5">
+  <style>
+    .language-control[hidden] { display: none; }
+
+    .error-page {
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      min-height: calc(100svh - 100px);
+      padding: 32px 24px clamp(64px, 12vh, 128px);
+      text-align: center;
+    }
+
+    .error-code {
+      display: flex;
+      align-items: center;
+      gap: .06em;
+      margin: 0 0 24px;
+      font-size: clamp(5.5rem, 18vw, 13rem);
+      font-weight: 500;
+      line-height: .95;
+      font-variant-numeric: lining-nums;
+    }
+
+    .error-orb {
+      width: .66em;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle at 34% 29%, #b5edf1, #6dc9d9 22%, #307d8e 51%, #123c48 77%, #0a222a);
+      box-shadow: 0 0 .36em -.1em #7ee5f660, 0 .1em .24em -.05em #000a;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    .error-page h1 {
+      margin: 0;
+      font-size: clamp(1.65rem, 4.5vw, 2.75rem);
+      font-weight: 500;
+      letter-spacing: -.04em;
+      line-height: 1.15;
+    }
+
+    .error-page .lead { margin: 12px 0 20px; }
+
+    .error-home {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    .error-home:hover { border-color: var(--accent); }
+
+    @media (max-width: 700px) {
+      .error-page { min-height: calc(100svh - 80px); }
+    }
+
+    @media (forced-colors: active) {
+      .error-orb { width: auto; aspect-ratio: auto; }
+      .error-orb::after { content: '0'; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="wordmark" id="wordmark" href="/" aria-label="Ballltrack — home">Ba<span class="triple">lll</span>track</a>
+    <div class="language-control" id="language-control" hidden>
+      <select id="language" aria-label="Language">
+        <option value="en" lang="en">English</option>
+        <option value="fr" lang="fr">Français</option>
+        <option value="it" lang="it">Italiano</option>
+      </select>
+      <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+        <path d="m2 3 3 3 3-3" fill="none" stroke="currentColor"/>
+      </svg>
+    </div>
+  </header>
+  <main class="error-page">
+    <p class="error-code">
+      <span class="visually-hidden">404</span>
+      <span aria-hidden="true">4</span><span class="error-orb" aria-hidden="true"></span><span aria-hidden="true">4</span>
+    </p>
+    <h1 id="error-title">Page not found</h1>
+    <p class="lead" id="error-message">The page you’re looking for may have moved or been removed.</p>
+    <a class="text-link error-home" id="error-home" href="/">
+      <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+        <path d="M20 12H4m7-7-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.4"/>
+      </svg>
+      <span id="home-label">Back to the device</span>
+    </a>
+  </main>
+  <script src="/locales.js?v=5"></script>
+  <script>
+    const errorCopy = {
+      en: {
+        title: 'Page not found',
+        message: 'The page you’re looking for may have moved or been removed.',
+      },
+      fr: {
+        title: 'Page introuvable',
+        message: 'La page que vous cherchez a peut-être été déplacée ou supprimée.',
+      },
+      it: {
+        title: 'Pagina non trovata',
+        message: 'La pagina che cerchi potrebbe essere stata spostata o rimossa.',
+      },
+    };
+
+    const languageSelect = document.getElementById('language');
+    const wordmarkLink = document.getElementById('wordmark');
+    const homeLink = document.getElementById('error-home');
+    const preferenceKey = 'balll-language';
+
+    function renderError(language) {
+      const copy = errorCopy[language];
+      const locale = translations[language];
+
+      document.documentElement.lang = language;
+      document.title = `404 · ${copy.title} — Ballltrack`;
+      document.getElementById('error-title').textContent = copy.title;
+      document.getElementById('error-message').textContent = copy.message;
+      document.getElementById('home-label').textContent = locale.back;
+      wordmarkLink.setAttribute('aria-label', locale.homeLabel);
+      languageSelect.setAttribute('aria-label', locale.language);
+      languageSelect.value = language;
+      wordmarkLink.href = homeLink.href = `/?lang=${language}`;
+    }
+
+    if (typeof translations !== 'undefined') {
+      let savedLanguage;
+      try { savedLanguage = localStorage.getItem(preferenceKey); } catch {}
+
+      const url = new URL(location.href);
+      const preferredLanguage = url.searchParams.get('lang') ?? savedLanguage;
+      renderError(Object.hasOwn(errorCopy, preferredLanguage) ? preferredLanguage : 'en');
+      document.getElementById('language-control').hidden = false;
+
+      languageSelect.addEventListener('change', () => {
+        const language = languageSelect.value;
+        try { localStorage.setItem(preferenceKey, language); } catch {}
+
+        url.searchParams.set('lang', language);
+        history.replaceState(null, '', url);
+        renderError(language);
+      });
+    }
+  </script>
+</body>
+</html>
